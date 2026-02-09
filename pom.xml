@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>uk.co.keirahopkins</groupId>
+    <artifactId>hiam</artifactId>
+    <version>2.3.1</version>
+    <packaging>pom</packaging>
+
+    <name>Helix IAM</name>
+    <description>Authentication system for Velocity + Paper networks</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
+        
+        <!-- Dependency versions -->
+        <velocity.version>3.4.0</velocity.version>
+        <paper.version>1.21.4-R0.1-SNAPSHOT</paper.version>
+        <hikari.version>5.1.0</hikari.version>
+        <postgresql.version>42.7.3</postgresql.version>
+        <argon2.version>2.11</argon2.version>
+        <adventure.version>4.17.0</adventure.version>
+        <slf4j.version>2.0.12</slf4j.version>
+        <snakeyaml.version>2.2</snakeyaml.version>
+    </properties>
+
+    <modules>
+        <module>hiam-velocity</module>
+        <module>hiam-paper</module>
+        <module>hiam-paper-gate</module>
+    </modules>
+
+    <repositories>
+        <repository>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>velocity</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Velocity API -->
+            <dependency>
+                <groupId>com.velocitypowered</groupId>
+                <artifactId>velocity-api</artifactId>
+                <version>${velocity.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- Paper API -->
+            <dependency>
+                <groupId>io.papermc.paper</groupId>
+                <artifactId>paper-api</artifactId>
+                <version>${paper.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- HikariCP -->
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${hikari.version}</version>
+            </dependency>
+
+            <!-- PostgreSQL JDBC -->
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
+
+            <!-- Argon2 -->
+            <dependency>
+                <groupId>de.mkammerer</groupId>
+                <artifactId>argon2-jvm</artifactId>
+                <version>${argon2.version}</version>
+            </dependency>
+
+            <!-- Adventure (for clickable chat) -->
+            <dependency>
+                <groupId>net.kyori</groupId>
+                <artifactId>adventure-api</artifactId>
+                <version>${adventure.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.kyori</groupId>
+                <artifactId>adventure-text-minimessage</artifactId>
+                <version>${adventure.version}</version>
+            </dependency>
+
+            <!-- SLF4J -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- SnakeYAML -->
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.12.1</version>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                    <release>21</release>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

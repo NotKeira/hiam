@@ -1,0 +1,75 @@
+# Helix IAM Velocity Configuration
+
+# Database Configuration
+database:
+  host: "localhost"
+  port: 5432
+  name: "helixiam"
+  user: "hxnt_srv"
+  password: "CHANGE_ME"
+  schema: ""
+  ssl: false
+  poolSize: 10
+  initDb: true
+
+# Session Configuration
+session:
+  # Session time-to-live in minutes (default: 12 hours)
+  ttlMinutes: 720
+  # Lock sessions to IP addresses
+  ipLock: true
+
+# Login Configuration
+login:
+  # Timeout in seconds before kicking unauthenticated players
+  timeoutSeconds: 60
+  # Maximum login attempts before temporary lockout
+  maxAttempts: 5
+  # Lockout duration in minutes
+  lockoutMinutes: 15
+
+# Server Routing
+routing:
+  # Name of the auth server (must match server name in Velocity config)
+  authServer: "auth"
+  # Target server after successful authentication
+  postLoginTarget: "lobby"
+  # Fallback server if postLoginTarget is unavailable
+  fallbackServer: "survival"
+
+# Premium Features
+premium:
+  # Automatically prompt Java users to enable premium mode after registration
+  enableAutoPrompt: true
+
+# Commands
+commands:
+  # Commands allowed before authentication
+  allowedPreAuth:
+    - "/register"
+    - "/login"
+    - "/l"
+    - "/r"
+    - "/changepass"
+    - "/help"
+
+# Permissions Defaults
+permissions:
+  # Allow players to use /premium by default
+  playerPremiumDefault: true
+  # Allow players to use /offline by default
+  playerOfflineDefault: true
+  # Restrict admin commands to operators only
+  adminDefaultOpOnly: true
+
+# Security
+security:
+  # Minimum password length
+  minPasswordLength: 8
+  # Require password confirmation for registration and password changes
+  requireConfirmation: true
+
+# Messaging
+messaging:
+  # Plugin messaging channel name
+  channel: "hiam:auth"

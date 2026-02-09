@@ -1,0 +1,21 @@
+# Helix IAM Paper Auth Server Configuration
+
+# Spawn locations (set using /setloginspawn and /setmainspawn commands)
+spawns:
+  # Login spawn - where players are teleported before authentication
+  login:
+    world: "world"
+    x: 0.0
+    y: 64.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0
+  
+  # Main spawn - where players are teleported after successful authentication
+  main:
+    world: "world"
+    x: 0.0
+    y: 64.0
+    z: 0.0
+    yaw: 0.0
+    pitch: 0.0

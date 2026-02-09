@@ -1,0 +1,71 @@
+name: HelixIAM-Paper
+version: ${project.version}
+main: uk.co.keirahopkins.hiam.paper.HelixIAMPaper
+api-version: '1.21'
+description: Paper auth server plugin for Helix IAM
+author: Keira Hopkins
+website: https://github.com/NotKeira/hiam-ai
+
+commands:
+  register:
+    description: Register a new account
+    usage: /register <password> <confirm>
+    permission: hiam.player.register
+    aliases: [r]
+  login:
+    description: Login to your account
+    usage: /login <password>
+    permission: hiam.player.login
+    aliases: [l]
+  changepass:
+    description: Change your password
+    usage: /changepass <oldPassword> <newPassword> <confirm>
+    permission: hiam.player.changepass
+  premium:
+    description: Enable premium (no-password) mode
+    usage: /premium
+    permission: hiam.player.premium
+  offline:
+    description: Switch to offline (password) mode
+    usage: /offline
+    permission: hiam.player.offline
+  authinfo:
+    description: View authentication info for a player
+    usage: /authinfo <player>
+    permission: hiam.admin.authinfo
+  setloginspawn:
+    description: Set the login spawn point
+    usage: /setloginspawn
+    permission: hiam.admin.setspawn
+  setmainspawn:
+    description: Set the main spawn point (after auth)
+    usage: /setmainspawn
+    permission: hiam.admin.setspawn
+  hiam:
+    description: Helix IAM admin commands
+    usage: /hiam <subcommand>
+
+permissions:
+  hiam.player.*:
+    description: All player permissions
+    default: true
+    children:
+      hiam.player.register: true
+      hiam.player.login: true
+      hiam.player.changepass: true
+      hiam.player.premium: true
+      hiam.player.offline: true
+  hiam.admin.*:
+    description: All admin permissions
+    default: op
+    children:
+      hiam.admin.authinfo: true
+      hiam.admin.setspawn: true
+      hiam.admin.forcereset: true
+      hiam.admin.resetpassword: true
+      hiam.admin.clearpassword: true
+      hiam.admin.setpremium: true
+      hiam.admin.setoffline: true
+  hiam.info:
+    description: View plugin info
+    default: op

@@ -1,0 +1,9 @@
+{
+  "id": "hiam-velocity",
+  "name": "Helix IAM",
+  "version": "${project.version}",
+  "description": "Authentication system for Velocity + Paper networks",
+  "authors": ["Keira Hopkins"],
+  "main": "uk.co.keirahopkins.hiam.velocity.HelixIAMVelocity",
+  "dependencies": []
+}

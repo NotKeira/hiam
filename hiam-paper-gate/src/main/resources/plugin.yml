@@ -1,0 +1,34 @@
+name: HelixIAM-Gate
+version: ${project.version}
+main: uk.co.keirahopkins.hiam.gate.HelixIAMGate
+api-version: '1.21'
+description: Optional gate plugin for Helix IAM
+author: Keira Hopkins
+website: https://github.com/NotKeira/hiam-ai
+
+commands:
+  hub:
+    description: Send the player to the lobby
+    usage: /hub
+  hiam:
+    description: Helix IAM confirmation commands
+    usage: /hiam <confirm|cancel> <token>
+  premium:
+    description: Enable premium (no-password) mode
+    usage: /premium
+    permission: hiam.player.premium
+  offline:
+    description: Switch to offline (password) mode
+    usage: /offline
+    permission: hiam.player.offline
+
+permissions:
+  hiam.gate.bypass:
+    description: Bypass auth gate checks
+    default: op
+  hiam.player.premium:
+    description: Allow players to enable premium mode
+    default: true
+  hiam.player.offline:
+    description: Allow players to use offline mode
+    default: true

@@ -1,0 +1,73 @@
+# Helix IAM Paper Auth Server Configuration
+
+# Authentication Settings
+auth:
+  # Spawn locations
+  spawn:
+    # Spawn point for login (set with /setloginspawn)
+    login:
+      world: "world"
+      x: 0.0
+      y: 64.0
+      z: 0.0
+      yaw: 0.0
+      pitch: 0.0
+    # Spawn point after authentication (set with /setmainspawn)
+    post:
+      world: "world"
+      x: 0.0
+      y: 64.0
+      z: 0.0
+      yaw: 0.0
+      pitch: 0.0
+  # Freeze settings
+  freeze:
+    # Enable player freeze before authentication
+    enabled: true
+    # Block movement
+    blockMovement: true
+    # Block commands (except whitelisted)
+    blockCommands: true
+    # Block inventory access
+    blockInventory: true
+    # Block damage
+    blockDamage: true
+    # Block interactions
+    blockInteractions: true
+
+# Messaging Configuration
+messaging:
+  # Plugin messaging channel (must match Velocity)
+  channel: "hiam:auth"
+
+# Messages
+messages:
+  # Prefix for all messages
+  prefix: "&8[&6Helix IAM&8]&r "
+  # Registration prompts
+  register:
+    prompt: "&eWelcome! Please register with &6/register <password> <confirm>"
+    success: "&aAccount registered successfully!"
+    alreadyRegistered: "&cYou already have an account. Use &6/login <password>"
+    passwordMismatch: "&cPasswords do not match!"
+    passwordTooShort: "&cPassword must be at least {min} characters long!"
+  # Login prompts
+  login:
+    prompt: "&eWelcome back! Please login with &6/login <password>"
+    success: "&aLogged in successfully!"
+    failed: "&cIncorrect password!"
+    noAccount: "&cNo account found. Use &6/register <password> <confirm>"
+    timeout: "&cLogin timeout! You have been kicked."
+    maxAttempts: "&cToo many failed attempts. Try again in {minutes} minutes."
+  # Premium prompts
+  premium:
+    javaPrompt: "&aEnable better security? (Java-only, no password needed)"
+    confirmButton: "&a&l[Enable Premium]"
+    cancelButton: "&c&l[Keep Password]"
+    success: "&aYou are now in premium mode! No password needed."
+    notJava: "&cPremium mode is only available for Java Edition players."
+  # General messages
+  freeze:
+    message: "&cYou cannot do that until you authenticate!"
+  kicked:
+    timeout: "&cYou were kicked for taking too long to authenticate."
