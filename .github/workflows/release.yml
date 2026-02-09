@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Read version from pom.xml
+        id: version
+        run: echo "version=$(mvn -q -Dexpression=project.version -DforceStdout help:evaluate)" >> "$GITHUB_OUTPUT"
+
+      - name: Build shaded jars
+        run: mvn -B -DskipTests=false -Dshade.skip=false -pl hiam-velocity,hiam-paper,hiam-paper-gate -am package
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: ${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          files: |
+            hiam-paper/target/*-shaded.jar
+            hiam-paper-gate/target/*-shaded.jar
+            hiam-velocity/target/*-shaded.jar
