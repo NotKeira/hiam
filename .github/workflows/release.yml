@@ -27,18 +27,18 @@ jobs:
         id: version
         run: echo "version=$(mvn -q -Dexpression=project.version -DforceStdout help:evaluate)" >> "$GITHUB_OUTPUT"
 
-      - name: Build Java 17 artifacts (default profile)
-        run: mvn -B -DskipTests=false -pl hiam-velocity,hiam-paper,hiam-paper-gate -am clean package
+      - name: Build Java 21 artifacts (java21 profile)
+        run: mvn -B -DskipTests=false -P java21 -pl hiam-velocity,hiam-paper,hiam-paper-gate -am clean package
 
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "17"
           cache: maven
 
-      - name: Build Java 21 artifacts (java21 profile)
-        run: mvn -B -DskipTests=false -P java21 -pl hiam-velocity,hiam-paper,hiam-paper-gate -am clean package
+      - name: Build Java 17 artifacts (default profile)
+        run: mvn -B -DskipTests=false -pl hiam-velocity,hiam-paper,hiam-paper-gate -am clean package
 
       - name: Set up JDK 25 (experimental)
         uses: actions/setup-java@v4
