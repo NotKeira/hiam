@@ -8,7 +8,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.co.keirahopkins.hiam.gate.HelixIAMGate;
+import uk.co.keirahopkins.hiam.gate.GatePlugin;
 
 import java.util.Map;
 import java.util.UUID;
@@ -26,10 +26,10 @@ public class MessagingService implements PluginMessageListener {
     private static final String OFFLINE_SUCCESS_SUBCHANNEL = "OfflineSuccess";
     private static final String OFFLINE_FAIL_SUBCHANNEL = "OfflineFail";
     
-    private final HelixIAMGate plugin;
+    private final GatePlugin plugin;
     private final Map<UUID, Consumer<Boolean>> pendingChecks;
     
-    public MessagingService(HelixIAMGate plugin) {
+    public MessagingService(GatePlugin plugin) {
         this.plugin = plugin;
         this.pendingChecks = new ConcurrentHashMap<>();
     }
@@ -80,6 +80,25 @@ public class MessagingService implements PluginMessageListener {
         out.writeUTF(player.getName());
         player.sendPluginMessage(plugin, CHANNEL, out.toByteArray());
         logger.debug("Sent offline request for player: {}", player.getName());
+    }
+
+    public void sendChangePasswordRequest(Player player, String oldPassword, String newPassword) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("ChangePassword");
+        out.writeUTF(player.getName());
+        out.writeUTF(oldPassword);
+        out.writeUTF(newPassword);
+        player.sendPluginMessage(plugin, CHANNEL, out.toByteArray());
+        logger.debug("Sent change password request for player: {}", player.getName());
+    }
+
+    public void sendAdminOverrideRequest(Player player, String targetPlayerName, String mode) {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("AdminOverride");
+        out.writeUTF(targetPlayerName);
+        out.writeUTF(mode);
+        player.sendPluginMessage(plugin, CHANNEL, out.toByteArray());
+        logger.debug("Sent admin override request for player: {} on target: {} ({})", player.getName(), targetPlayerName, mode);
     }
     
     @Override

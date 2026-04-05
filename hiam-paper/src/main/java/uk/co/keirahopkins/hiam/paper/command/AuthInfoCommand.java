@@ -7,13 +7,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import uk.co.keirahopkins.hiam.paper.HelixIAMPaper;
+import uk.co.keirahopkins.hiam.paper.PaperPlugin;
 
 public class AuthInfoCommand implements CommandExecutor {
     
-    private final HelixIAMPaper plugin;
+    private final PaperPlugin plugin;
     
-    public AuthInfoCommand(HelixIAMPaper plugin) {
+    public AuthInfoCommand(PaperPlugin plugin) {
         this.plugin = plugin;
     }
     

@@ -7,7 +7,34 @@ on:
   pull_request:
 
 jobs:
-  build:
+  build-java17:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Build Java 17 artifacts (default profile)
+        run: mvn -B -DskipTests=false -pl hiam-velocity,hiam-paper,hiam-paper-gate -am clean package
+
+      - name: Upload Java 17 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: hiam-java17
+          path: |
+            hiam-paper/target/*java17*.jar
+            hiam-paper-gate/target/*java17*.jar
+            hiam-velocity/target/*java17*.jar
+            !**/*-sources.jar
+            !**/*-javadoc.jar
+
+  build-java21:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,29 +47,45 @@ jobs:
           java-version: "21"
           cache: maven
 
-      - name: Build non-shaded jars
-        run: mvn -B -DskipTests=false -Dshade.skip=true -pl hiam-velocity,hiam-paper,hiam-paper-gate -am package
+      - name: Build Java 21 artifacts (java21 profile)
+        run: mvn -B -DskipTests=false -P java21 -pl hiam-velocity,hiam-paper,hiam-paper-gate -am clean package
 
-      - name: Build shaded jars
-        run: mvn -B -DskipTests=false -Dshade.skip=false -pl hiam-velocity,hiam-paper,hiam-paper-gate -am package
-
-      - name: Upload non-shaded artifacts
+      - name: Upload Java 21 artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: hiam-nonshaded
+          name: hiam-java21
           path: |
-            hiam-paper/target/*.jar
-            hiam-paper-gate/target/*.jar
-            hiam-velocity/target/*.jar
-            !**/*-shaded.jar
+            hiam-paper/target/*java21*.jar
+            hiam-paper-gate/target/*java21*.jar
+            hiam-velocity/target/*java21*.jar
             !**/*-sources.jar
             !**/*-javadoc.jar
 
-      - name: Upload shaded artifacts
-        uses: actions/upload-artifact@v4
+  build-java25:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25 (experimental)
+        uses: actions/setup-java@v4
         with:
-          name: hiam-shaded
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+
+      - name: Build Java 25 artifacts (java25 profile)
+        run: mvn -B -DskipTests=false -P java25 -pl hiam-velocity,hiam-paper,hiam-paper-gate -am clean package
+        continue-on-error: true
+
+      - name: Upload Java 25 artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hiam-java25
           path: |
-            hiam-paper/target/*-shaded.jar
-            hiam-paper-gate/target/*-shaded.jar
-            hiam-velocity/target/*-shaded.jar
+            hiam-paper/target/*java25*.jar
+            hiam-paper-gate/target/*java25*.jar
+            hiam-velocity/target/*java25*.jar
+            !**/*-sources.jar
+            !**/*-javadoc.jar

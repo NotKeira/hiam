@@ -2,7 +2,7 @@ package uk.co.keirahopkins.hiam.paper.manager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import uk.co.keirahopkins.hiam.paper.HelixIAMPaper;
+import uk.co.keirahopkins.hiam.paper.PaperPlugin;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public class ConfirmationManager {
         confirmations.put(token, data);
         
         // Schedule auto-expiry
-        Bukkit.getScheduler().runTaskLater(HelixIAMPaper.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskLater(PaperPlugin.getInstance(), () -> {
             confirmations.remove(token);
         }, TOKEN_EXPIRY_MS / 50); // Convert ms to ticks
         

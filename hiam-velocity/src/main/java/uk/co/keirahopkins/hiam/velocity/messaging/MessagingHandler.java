@@ -2,11 +2,12 @@ package uk.co.keirahopkins.hiam.velocity.messaging;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.PluginMessageEvent;
+import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import org.slf4j.Logger;
-import uk.co.keirahopkins.hiam.velocity.HelixIAMVelocity;
+import uk.co.keirahopkins.hiam.velocity.VelocityPlugin;
 import uk.co.keirahopkins.hiam.velocity.database.AccountRepository;
 import uk.co.keirahopkins.hiam.velocity.database.CredentialRepository;
 import uk.co.keirahopkins.hiam.velocity.database.SessionRepository;
@@ -21,8 +22,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Handles plugin messaging between Velocity and Paper servers.
@@ -32,20 +35,22 @@ public class MessagingHandler {
     private static final MinecraftChannelIdentifier CHANNEL = 
         MinecraftChannelIdentifier.from("hiam:auth");
     
-    private final HelixIAMVelocity plugin;
+    private final VelocityPlugin plugin;
     private final Logger logger;
     private final AccountRepository accountRepository;
     private final CredentialRepository credentialRepository;
     private final SessionRepository sessionRepository;
     private final PasswordHasher passwordHasher;
+    private final Map<UUID, Boolean> pendingOverrides;
     
-    public MessagingHandler(HelixIAMVelocity plugin) {
+    public MessagingHandler(VelocityPlugin plugin) {
         this.plugin = plugin;
         this.logger = plugin.getLogger();
         this.accountRepository = plugin.getAccountRepository();
         this.credentialRepository = plugin.getCredentialRepository();
         this.sessionRepository = plugin.getSessionRepository();
         this.passwordHasher = plugin.getPasswordHasher();
+        this.pendingOverrides = new ConcurrentHashMap<>();
     }
     
     public void register() {
@@ -86,6 +91,7 @@ public class MessagingHandler {
                 case "AdminClearPassword" -> handleAdminClearPassword(in);
                 case "AdminSetPremium" -> handleAdminSetPremium(in);
                 case "AdminSetOffline" -> handleAdminSetOffline(in);
+                case "AdminOverride" -> handleAdminOverride(player, in);
                 default -> logger.warn("Unknown message type: {}", messageType);
             }
             
@@ -214,6 +220,99 @@ public class MessagingHandler {
         
         logger.info("Password changed: {}", username);
         sendResponse(player, "ChangePasswordSuccess", "");
+    }
+
+    private void handleAdminOverride(Player player, DataInputStream in) throws IOException {
+        String targetPlayerName = readUtfOrDefault(in, player.getUsername());
+        String mode = readUtfOrDefault(in, "").toLowerCase();
+        String authServer = plugin.getConfig().getRoutingAuthServer();
+
+        if (!mode.equals("authserver") && !mode.equals("currentserver") && !mode.equals("off")) {
+            player.sendMessage(net.kyori.adventure.text.Component.text(
+                "Invalid override mode. Use authServer, currentServer, or off.",
+                net.kyori.adventure.text.format.NamedTextColor.RED
+            ));
+            return;
+        }
+
+        Optional<Player> targetOpt = plugin.getServer().getPlayer(targetPlayerName);
+        if (targetOpt.isEmpty()) {
+            player.sendMessage(net.kyori.adventure.text.Component.text(
+                "Target player not found: " + targetPlayerName,
+                net.kyori.adventure.text.format.NamedTextColor.RED
+            ));
+            return;
+        }
+
+        Player targetPlayer = targetOpt.get();
+        boolean targetOnAuthServer = targetPlayer.getCurrentServer()
+            .map(ServerConnection::getServer)
+            .map(server -> server.getServerInfo().getName().equalsIgnoreCase(authServer))
+            .orElse(false);
+
+        if (mode.equals("off")) {
+            sendAdminOverrideDisableMessage(targetPlayer);
+            return;
+        }
+
+        if (mode.equals("currentserver")) {
+            if (!targetOnAuthServer) {
+                player.sendMessage(net.kyori.adventure.text.Component.text(
+                    "Admin override can only be applied on the auth server.",
+                    net.kyori.adventure.text.format.NamedTextColor.RED
+                ));
+                return;
+            }
+
+            sendAdminOverrideMessage(targetPlayer);
+            return;
+        }
+
+        if (targetOnAuthServer) {
+            sendAdminOverrideMessage(targetPlayer);
+            return;
+        }
+
+        pendingOverrides.put(targetPlayer.getUniqueId(), Boolean.TRUE);
+    }
+
+    @Subscribe
+    public void onServerConnected(ServerConnectedEvent event) {
+        Player player = event.getPlayer();
+        if (!pendingOverrides.containsKey(player.getUniqueId())) {
+            return;
+        }
+
+        String authServer = plugin.getConfig().getRoutingAuthServer();
+        String serverName = event.getServer().getServerInfo().getName();
+        if (!serverName.equalsIgnoreCase(authServer)) {
+            return;
+        }
+
+        pendingOverrides.remove(player.getUniqueId());
+        sendAdminOverrideMessage(player);
+    }
+
+    private void sendAdminOverrideMessage(Player player) {
+        try (ByteArrayOutputStream stream = new ByteArrayOutputStream();
+             DataOutputStream out = new DataOutputStream(stream)) {
+            out.writeUTF("AdminOverride");
+            out.writeUTF("enable");
+            player.sendPluginMessage(CHANNEL, stream.toByteArray());
+        } catch (IOException e) {
+            logger.error("Failed to send AdminOverride message for {}", player.getUsername(), e);
+        }
+    }
+
+    private void sendAdminOverrideDisableMessage(Player player) {
+        try (ByteArrayOutputStream stream = new ByteArrayOutputStream();
+             DataOutputStream out = new DataOutputStream(stream)) {
+            out.writeUTF("AdminOverride");
+            out.writeUTF("disable");
+            player.sendPluginMessage(CHANNEL, stream.toByteArray());
+        } catch (IOException e) {
+            logger.error("Failed to send AdminOverride disable message for {}", player.getUsername(), e);
+        }
     }
     
     private void handleEnablePremium(Player player, DataInputStream in) throws IOException {

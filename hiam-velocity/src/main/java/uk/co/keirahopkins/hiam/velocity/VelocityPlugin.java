@@ -15,7 +15,7 @@ import uk.co.keirahopkins.hiam.velocity.database.CredentialRepository;
 import uk.co.keirahopkins.hiam.velocity.database.SessionRepository;
 import uk.co.keirahopkins.hiam.velocity.listener.PostLoginEventListener;
 import uk.co.keirahopkins.hiam.velocity.listener.PreLoginEventListener;
-import uk.co.keirahopkins.hiam.velocity.listener.ServerPreConnectEventListener;
+import uk.co.keirahopkins.hiam.velocity.listener.ProxyConnectListener;
 import uk.co.keirahopkins.hiam.velocity.manager.RateLimiter;
 import uk.co.keirahopkins.hiam.velocity.manager.SessionManager;
 import uk.co.keirahopkins.hiam.velocity.messaging.MessagingHandler;
@@ -33,11 +33,11 @@ import java.util.concurrent.TimeUnit;
 @Plugin(
     id = "hiam-velocity",
     name = "Helix IAM - Velocity",
-    version = "2.2.2",
+    version = "2.3.2",
     description = "Velocity plugin for Helix IAM authentication",
     authors = {"Keira Hopkins"}
 )
-public class HelixIAMVelocity {
+public class VelocityPlugin {
     
     private final ProxyServer server;
     private final Logger logger;
@@ -56,10 +56,10 @@ public class HelixIAMVelocity {
     
     private PreLoginEventListener preLoginEventListener;
     private PostLoginEventListener postLoginEventListener;
-    private ServerPreConnectEventListener serverPreConnectEventListener;
+    private ProxyConnectListener serverPreConnectEventListener;
 
     @Inject
-    public HelixIAMVelocity(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
+    public VelocityPlugin(ProxyServer server, Logger logger, @DataDirectory Path dataDirectory) {
         this.server = server;
         this.logger = logger;
         this.dataDirectory = dataDirectory;
@@ -67,7 +67,7 @@ public class HelixIAMVelocity {
 
     @Subscribe
     public void onProxyInitialize(ProxyInitializeEvent event) {
-        logger.info("Initializing Helix IAM Velocity plugin...");
+        logger.info("Starting up Helix IAM Velocity plugin...");
         
         try {
             initializeDataDirectory();
@@ -79,10 +79,10 @@ public class HelixIAMVelocity {
             initializeListeners();
             startScheduledTasks();
             
-            logger.info("Helix IAM Velocity plugin initialized successfully");
+            logger.info("Helix IAM Velocity plugin started successfully");
         } catch (Exception e) {
-            logger.error("Failed to initialize Helix IAM Velocity plugin", e);
-            throw new RuntimeException("Failed to initialize plugin", e);
+            logger.error("Failed to start Helix IAM Velocity plugin", e);
+            throw new RuntimeException("Failed to start plugin", e);
         }
     }
 
@@ -178,7 +178,7 @@ public class HelixIAMVelocity {
     private void initializeListeners() {
         this.preLoginEventListener = new PreLoginEventListener(rateLimiter);
         this.postLoginEventListener = new PostLoginEventListener(accountRepository, credentialRepository);
-        this.serverPreConnectEventListener = new ServerPreConnectEventListener(config, postLoginEventListener, server);
+        this.serverPreConnectEventListener = new ProxyConnectListener(config, postLoginEventListener, server);
         
         server.getEventManager().register(this, preLoginEventListener);
         server.getEventManager().register(this, postLoginEventListener);

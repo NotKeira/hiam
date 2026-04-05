@@ -7,14 +7,14 @@
     <parent>
         <groupId>uk.co.keirahopkins</groupId>
         <artifactId>hiam</artifactId>
-        <version>2.3.1</version>
+        <version>3.0.0</version>
     </parent>
 
     <artifactId>hiam-paper</artifactId>
     <packaging>jar</packaging>
 
-    <name>Helix IAM - Paper Auth Server</name>
-    <description>Paper plugin for Helix IAM authentication server</description>
+    <name>Helix Identity and Access Management - Paper Auth Server</name>
+    <description>Paper plugin for authentication server</description>
 
     <dependencies>
         <dependency>
@@ -39,7 +39,7 @@
     </dependencies>
 
     <build>
-        <finalName>${project.name}-${project.version}</finalName>
+        <finalName>hiam-paper-${project.version}-${java.version.classifier}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>

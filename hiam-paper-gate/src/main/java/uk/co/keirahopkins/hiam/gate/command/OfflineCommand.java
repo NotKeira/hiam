@@ -7,14 +7,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import uk.co.keirahopkins.hiam.gate.HelixIAMGate;
+import uk.co.keirahopkins.hiam.gate.GatePlugin;
 import uk.co.keirahopkins.hiam.gate.manager.ConfirmationManager.ConfirmationType;
 
 public class OfflineCommand implements CommandExecutor {
 
-    private final HelixIAMGate plugin;
+    private final GatePlugin plugin;
 
-    public OfflineCommand(HelixIAMGate plugin) {
+    public OfflineCommand(GatePlugin plugin) {
         this.plugin = plugin;
     }
 

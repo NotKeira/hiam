@@ -2,7 +2,7 @@ package uk.co.keirahopkins.hiam.gate.manager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import uk.co.keirahopkins.hiam.gate.HelixIAMGate;
+import uk.co.keirahopkins.hiam.gate.GatePlugin;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -28,7 +28,7 @@ public class ConfirmationManager {
             System.currentTimeMillis() + TOKEN_EXPIRY_MS
         ));
 
-        Bukkit.getScheduler().runTaskLater(HelixIAMGate.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskLater(GatePlugin.getInstance(), () -> {
             confirmations.remove(token);
         }, TOKEN_EXPIRY_MS / 50L);
 

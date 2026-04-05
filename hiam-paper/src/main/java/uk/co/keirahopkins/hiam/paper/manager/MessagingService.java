@@ -1,11 +1,12 @@
 package uk.co.keirahopkins.hiam.paper.manager;
 
 import org.bukkit.entity.Player;
+import org.bukkit.GameMode;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.co.keirahopkins.hiam.paper.HelixIAMPaper;
+import uk.co.keirahopkins.hiam.paper.PaperPlugin;
 
 import java.io.*;
 import java.util.UUID;
@@ -15,9 +16,9 @@ public class MessagingService implements PluginMessageListener {
     private static final Logger logger = LoggerFactory.getLogger(MessagingService.class);
     private static final String CHANNEL = "hiam:auth";
     
-    private final HelixIAMPaper plugin;
+    private final PaperPlugin plugin;
     
-    public MessagingService(HelixIAMPaper plugin) {
+    public MessagingService(PaperPlugin plugin) {
         this.plugin = plugin;
     }
     
@@ -49,6 +50,7 @@ public class MessagingService implements PluginMessageListener {
                 case "AuthInfoResponse" -> handleAuthInfoResponse(player, data);
                 case "AuthInfoFail" -> handleAuthInfoFail(player, data);
                 case "ShowPremiumPrompt" -> handleShowPremiumPrompt(player);
+                case "AdminOverride" -> handleAdminOverride(player, data);
                 default -> logger.warn("Unknown plugin message subchannel: {}", subchannel);
             }
         } catch (IOException e) {
@@ -134,6 +136,37 @@ public class MessagingService implements PluginMessageListener {
     
     private void handleShowPremiumPrompt(Player player) {
         plugin.getAuthPromptManager().showPremiumPrompt(player);
+    }
+
+    private void handleAdminOverride(Player player, String data) {
+        if (!player.hasPermission("hiam.admin.override")) {
+            player.sendMessage(net.kyori.adventure.text.Component.text(
+                "You don't have permission to use admin override",
+                net.kyori.adventure.text.format.NamedTextColor.RED
+            ));
+            return;
+        }
+
+        if (data == null || data.isBlank()) {
+            return;
+        }
+
+        String mode = data.toLowerCase();
+        if (mode.equals("enable")) {
+            plugin.getFreezeManager().ignore(player);
+            player.setGameMode(GameMode.CREATIVE);
+            player.sendMessage(net.kyori.adventure.text.Component.text(
+                "Admin override enabled. You are now ignored by auth checks.",
+                net.kyori.adventure.text.format.NamedTextColor.GREEN
+            ));
+        } else if (mode.equals("disable")) {
+            plugin.getFreezeManager().unignore(player);
+            player.setGameMode(GameMode.SURVIVAL);
+            player.sendMessage(net.kyori.adventure.text.Component.text(
+                "Admin override disabled.",
+                net.kyori.adventure.text.format.NamedTextColor.YELLOW
+            ));
+        }
     }
     
     public void sendRegisterRequest(Player player, String password) {

@@ -14,22 +14,24 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import io.papermc.paper.event.player.AsyncChatEvent;
-import uk.co.keirahopkins.hiam.paper.HelixIAMPaper;
+import uk.co.keirahopkins.hiam.paper.PaperPlugin;
 
 public class PlayerListener implements Listener {
     
-    private final HelixIAMPaper plugin;
+    private final PaperPlugin plugin;
     
-    public PlayerListener(HelixIAMPaper plugin) {
+    public PlayerListener(PaperPlugin plugin) {
         this.plugin = plugin;
     }
     
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        
-        // Freeze player on join
-        plugin.getFreezeManager().freeze(player);
+
+        if (!plugin.getFreezeManager().isIgnored(player)) {
+            // Freeze player on join
+            plugin.getFreezeManager().freeze(player);
+        }
         
         // Teleport to login spawn if configured
         if (plugin.getSpawnManager().hasLoginSpawn()) {
@@ -39,7 +41,7 @@ public class PlayerListener implements Listener {
     
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerMove(PlayerMoveEvent event) {
-        if (plugin.getFreezeManager().isFrozen(event.getPlayer())) {
+        if (isBlocked(event.getPlayer())) {
             // Allow head movement but not position change
             if (event.getFrom().getX() != event.getTo().getX() ||
                 event.getFrom().getY() != event.getTo().getY() ||
@@ -52,8 +54,8 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         Player player = event.getPlayer();
-        
-        if (!plugin.getFreezeManager().isFrozen(player)) {
+
+        if (!isBlocked(player)) {
             return;
         }
         
@@ -75,7 +77,7 @@ public class PlayerListener implements Listener {
     public void onInventoryOpen(InventoryOpenEvent event) {
         if (event.getPlayer() instanceof Player) {
             Player player = (Player) event.getPlayer();
-            if (plugin.getFreezeManager().isFrozen(player)) {
+            if (isBlocked(player)) {
                 event.setCancelled(true);
             }
         }
@@ -85,7 +87,7 @@ public class PlayerListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getWhoClicked() instanceof Player) {
             Player player = (Player) event.getWhoClicked();
-            if (plugin.getFreezeManager().isFrozen(player)) {
+            if (isBlocked(player)) {
                 event.setCancelled(true);
             }
         }
@@ -93,7 +95,7 @@ public class PlayerListener implements Listener {
     
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerDropItem(PlayerDropItemEvent event) {
-        if (plugin.getFreezeManager().isFrozen(event.getPlayer())) {
+        if (isBlocked(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
@@ -102,7 +104,7 @@ public class PlayerListener implements Listener {
     public void onPlayerPickupItem(EntityPickupItemEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
-            if (plugin.getFreezeManager().isFrozen(player)) {
+            if (isBlocked(player)) {
                 event.setCancelled(true);
             }
         }
@@ -112,7 +114,7 @@ public class PlayerListener implements Listener {
     public void onEntityDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
-            if (plugin.getFreezeManager().isFrozen(player)) {
+            if (isBlocked(player)) {
                 event.setCancelled(true);
             }
         }
@@ -122,7 +124,7 @@ public class PlayerListener implements Listener {
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player) {
             Player player = (Player) event.getDamager();
-            if (plugin.getFreezeManager().isFrozen(player)) {
+            if (isBlocked(player)) {
                 event.setCancelled(true);
             }
         }
@@ -130,28 +132,28 @@ public class PlayerListener implements Listener {
     
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (plugin.getFreezeManager().isFrozen(event.getPlayer())) {
+        if (isBlocked(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
     
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
-        if (plugin.getFreezeManager().isFrozen(event.getPlayer())) {
+        if (isBlocked(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
     
     @EventHandler(priority = EventPriority.LOWEST)
     public void onBlockBreak(BlockBreakEvent event) {
-        if (plugin.getFreezeManager().isFrozen(event.getPlayer())) {
+        if (isBlocked(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
     
     @EventHandler(priority = EventPriority.LOWEST)
     public void onBlockPlace(BlockPlaceEvent event) {
-        if (plugin.getFreezeManager().isFrozen(event.getPlayer())) {
+        if (isBlocked(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
@@ -160,7 +162,7 @@ public class PlayerListener implements Listener {
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player) event.getEntity();
-            if (plugin.getFreezeManager().isFrozen(player)) {
+            if (isBlocked(player)) {
                 event.setCancelled(true);
             }
         }
@@ -168,8 +170,13 @@ public class PlayerListener implements Listener {
     
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerChat(AsyncChatEvent event) {
-        if (plugin.getFreezeManager().isFrozen(event.getPlayer())) {
+        if (isBlocked(event.getPlayer())) {
             event.setCancelled(true);
         }
+    }
+
+    private boolean isBlocked(Player player) {
+        return plugin.getFreezeManager().isFrozen(player)
+            && !plugin.getFreezeManager().isIgnored(player);
     }
 }

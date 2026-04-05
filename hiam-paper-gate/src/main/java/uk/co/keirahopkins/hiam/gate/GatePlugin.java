@@ -3,7 +3,7 @@ package uk.co.keirahopkins.hiam.gate;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.co.keirahopkins.hiam.gate.command.HiamCommand;
+import uk.co.keirahopkins.hiam.gate.command.AuthCommand;
 import uk.co.keirahopkins.hiam.gate.command.HubCommand;
 import uk.co.keirahopkins.hiam.gate.command.OfflineCommand;
 import uk.co.keirahopkins.hiam.gate.command.PremiumCommand;
@@ -12,10 +12,10 @@ import uk.co.keirahopkins.hiam.gate.manager.AuthPromptManager;
 import uk.co.keirahopkins.hiam.gate.manager.ConfirmationManager;
 import uk.co.keirahopkins.hiam.gate.manager.MessagingService;
 
-public class HelixIAMGate extends JavaPlugin {
+public class GatePlugin extends JavaPlugin {
     
-    private static final Logger logger = LoggerFactory.getLogger(HelixIAMGate.class);
-    private static HelixIAMGate instance;
+    private static final Logger logger = LoggerFactory.getLogger(GatePlugin.class);
+    private static GatePlugin instance;
     private MessagingService messagingService;
     private ConfirmationManager confirmationManager;
     private AuthPromptManager authPromptManager;
@@ -38,7 +38,11 @@ public class HelixIAMGate extends JavaPlugin {
 
         getCommand("premium").setExecutor(new PremiumCommand(this));
         getCommand("offline").setExecutor(new OfflineCommand(this));
-        getCommand("hiam").setExecutor(new HiamCommand(this));
+        
+        AuthCommand hiamCommand = new AuthCommand(this);
+        getCommand("hiam").setExecutor(hiamCommand);
+        getCommand("hiam").setTabCompleter(new uk.co.keirahopkins.hiam.gate.command.AuthCommandCompleter());
+        
         getCommand("hub").setExecutor(new HubCommand(this));
         
         logger.info("Helix IAM Gate enabled - lightweight auth gate active");
@@ -68,7 +72,7 @@ public class HelixIAMGate extends JavaPlugin {
         return authPromptManager;
     }
 
-    public static HelixIAMGate getInstance() {
+    public static GatePlugin getInstance() {
         return instance;
     }
 }

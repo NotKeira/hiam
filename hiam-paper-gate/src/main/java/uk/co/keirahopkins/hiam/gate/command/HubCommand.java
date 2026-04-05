@@ -7,7 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import uk.co.keirahopkins.hiam.gate.HelixIAMGate;
+import uk.co.keirahopkins.hiam.gate.GatePlugin;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -18,9 +18,9 @@ public class HubCommand implements CommandExecutor {
     private static final String CHANNEL = "BungeeCord";
     private static final String TARGET = "lobby";
 
-    private final HelixIAMGate plugin;
+    private final GatePlugin plugin;
 
-    public HubCommand(HelixIAMGate plugin) {
+    public HubCommand(GatePlugin plugin) {
         this.plugin = plugin;
     }
 

@@ -8,16 +8,16 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import uk.co.keirahopkins.hiam.paper.HelixIAMPaper;
+import uk.co.keirahopkins.hiam.paper.PaperPlugin;
 import uk.co.keirahopkins.hiam.paper.manager.ConfirmationManager.ConfirmationType;
 
 import java.util.UUID;
 
-public class HiamCommand implements CommandExecutor {
+public class AuthCommand implements CommandExecutor {
     
-    private final HelixIAMPaper plugin;
+    private final PaperPlugin plugin;
     
-    public HiamCommand(HelixIAMPaper plugin) {
+    public AuthCommand(PaperPlugin plugin) {
         this.plugin = plugin;
     }
     
@@ -43,6 +43,8 @@ public class HiamCommand implements CommandExecutor {
         switch (subCommand) {
             case "info":
                 return handleInfo(player);
+            case "changepass":
+                return handleChangePassword(player, args);
             case "admin":
                 return handleAdminPlayer(player, args);
             case "confirm":
@@ -59,6 +61,8 @@ public class HiamCommand implements CommandExecutor {
         player.sendMessage(Component.text("=== Helix IAM Commands ===", NamedTextColor.GOLD));
         player.sendMessage(Component.text("/hiam info", NamedTextColor.YELLOW)
             .append(Component.text(" - Show plugin information", NamedTextColor.GRAY)));
+        player.sendMessage(Component.text("/hiam changepass <old> <new>", NamedTextColor.YELLOW)
+            .append(Component.text(" - Change your password", NamedTextColor.GRAY)));
         
         if (player.hasPermission("hiam.admin")) {
             player.sendMessage(Component.text("/hiam admin <subcommand>", NamedTextColor.YELLOW)
@@ -98,6 +102,8 @@ public class HiamCommand implements CommandExecutor {
                 return handleSetPremium(player, args);
             case "setoffline":
                 return handleSetOffline(player, args);
+            case "override":
+                return handleAdminOverride(player, args);
             case "confirm":
                 return handleAdminConfirm(player, args);
             case "cancel":
@@ -179,10 +185,89 @@ public class HiamCommand implements CommandExecutor {
             .append(Component.text(" - Set player to premium mode", NamedTextColor.GRAY)));
         player.sendMessage(Component.text("/hiam admin setoffline <player>", NamedTextColor.YELLOW)
             .append(Component.text(" - Set player to offline mode", NamedTextColor.GRAY)));
+        player.sendMessage(Component.text("/hiam admin override [player] <authServer|currentServer|off>", NamedTextColor.YELLOW)
+            .append(Component.text(" - Override auth checks for yourself or another player", NamedTextColor.GRAY)));
         player.sendMessage(Component.text("/hiam admin confirm <token>", NamedTextColor.YELLOW)
             .append(Component.text(" - Confirm action", NamedTextColor.GRAY)));
         player.sendMessage(Component.text("/hiam admin cancel <token>", NamedTextColor.YELLOW)
             .append(Component.text(" - Cancel action", NamedTextColor.GRAY)));
+    }
+
+    private boolean handleChangePassword(Player player, String[] args) {
+        if (!player.hasPermission("hiam.player.changepass")) {
+            player.sendMessage(Component.text("You don't have permission to change your password", NamedTextColor.RED));
+            return true;
+        }
+
+        if (args.length < 3) {
+            player.sendMessage(Component.text("Usage: /hiam changepass <old password> <new password>", NamedTextColor.RED));
+            return true;
+        }
+
+        String oldPassword = args[1];
+        String newPassword = args[2];
+
+        if (newPassword.length() < 6) {
+            player.sendMessage(Component.text("New password must be at least 6 characters long", NamedTextColor.RED));
+            return true;
+        }
+
+        if (newPassword.length() > 128) {
+            player.sendMessage(Component.text("New password is too long (max 128 characters)", NamedTextColor.RED));
+            return true;
+        }
+
+        plugin.getMessagingService().sendChangePasswordRequest(player, oldPassword, newPassword);
+        player.sendMessage(Component.text("Changing password...", NamedTextColor.YELLOW));
+        return true;
+    }
+
+    private boolean handleAdminOverride(Player player, String[] args) {
+        if (!player.hasPermission("hiam.admin.override")) {
+            player.sendMessage(Component.text("You don't have permission to use admin override", NamedTextColor.RED));
+            return true;
+        }
+
+        if (args.length < 3) {
+            player.sendMessage(Component.text("Usage: /hiam admin override [player] <authServer|currentServer|off>", NamedTextColor.RED));
+            return true;
+        }
+
+        String target = args[2].toLowerCase();
+        Player targetPlayer = player;
+        String mode = target;
+
+        // Check if third arg is a player name (4+ args means we have player + mode)
+        if (args.length >= 4) {
+            targetPlayer = Bukkit.getPlayer(args[2]);
+            if (targetPlayer == null) {
+                player.sendMessage(Component.text("Player not found: " + args[2], NamedTextColor.RED));
+                return true;
+            }
+            mode = args[3].toLowerCase();
+        }
+
+        if (!mode.equals("authserver") && !mode.equals("currentserver") && !mode.equals("off")) {
+            player.sendMessage(Component.text("Usage: /hiam admin override [player] <authServer|currentServer|off>", NamedTextColor.RED));
+            return true;
+        }
+
+        if (mode.equals("off")) {
+            plugin.getFreezeManager().unignore(targetPlayer);
+            targetPlayer.setGameMode(org.bukkit.GameMode.SURVIVAL);
+            targetPlayer.sendMessage(Component.text("Admin override disabled.", NamedTextColor.YELLOW));
+            if (!targetPlayer.equals(player)) {
+                player.sendMessage(Component.text("Admin override disabled for " + targetPlayer.getName(), NamedTextColor.YELLOW));
+            }
+        } else {
+            plugin.getFreezeManager().ignore(targetPlayer);
+            targetPlayer.setGameMode(org.bukkit.GameMode.CREATIVE);
+            targetPlayer.sendMessage(Component.text("Admin override enabled. You are now ignored by auth checks.", NamedTextColor.GREEN));
+            if (!targetPlayer.equals(player)) {
+                player.sendMessage(Component.text("Admin override enabled for " + targetPlayer.getName(), NamedTextColor.GREEN));
+            }
+        }
+        return true;
     }
     
     private boolean handleForceReset(Player player, String[] args) {

@@ -13,14 +13,14 @@ import org.slf4j.LoggerFactory;
 import uk.co.keirahopkins.hiam.velocity.config.Config;
 import java.util.Optional;
 
-public class ServerPreConnectEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(ServerPreConnectEventListener.class);
+public class ProxyConnectListener {
+    private static final Logger logger = LoggerFactory.getLogger(ProxyConnectListener.class);
     
     private final Config config;
     private final PostLoginEventListener postLoginEventListener;
     private final ProxyServer server;
 
-    public ServerPreConnectEventListener(Config config, PostLoginEventListener postLoginEventListener, ProxyServer server) {
+    public ProxyConnectListener(Config config, PostLoginEventListener postLoginEventListener, ProxyServer server) {
         this.config = config;
         this.postLoginEventListener = postLoginEventListener;
         this.server = server;

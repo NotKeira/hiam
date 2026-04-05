@@ -1,6 +1,6 @@
 name: HelixIAM-Paper
 version: ${project.version}
-main: uk.co.keirahopkins.hiam.paper.HelixIAMPaper
+main: uk.co.keirahopkins.hiam.paper.PaperPlugin
 api-version: '1.21'
 description: Paper auth server plugin for Helix IAM
 author: Keira Hopkins
@@ -66,6 +66,7 @@ permissions:
       hiam.admin.clearpassword: true
       hiam.admin.setpremium: true
       hiam.admin.setoffline: true
+      hiam.admin.override: true
   hiam.info:
     description: View plugin info
     default: op

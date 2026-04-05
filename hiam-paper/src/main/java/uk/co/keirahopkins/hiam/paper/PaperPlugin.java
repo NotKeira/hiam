@@ -8,11 +8,11 @@ import uk.co.keirahopkins.hiam.paper.config.PaperConfig;
 import uk.co.keirahopkins.hiam.paper.listener.PlayerListener;
 import uk.co.keirahopkins.hiam.paper.manager.*;
 
-public class HelixIAMPaper extends JavaPlugin {
+public class PaperPlugin extends JavaPlugin {
     
-    private static final Logger logger = LoggerFactory.getLogger(HelixIAMPaper.class);
+    private static final Logger logger = LoggerFactory.getLogger(PaperPlugin.class);
     
-    private static HelixIAMPaper instance;
+    private static PaperPlugin instance;
     
     private PaperConfig paperConfig;
     private FreezeManager freezeManager;
@@ -88,10 +88,14 @@ public class HelixIAMPaper extends JavaPlugin {
         getCommand("authinfo").setExecutor(new AuthInfoCommand(this));
         getCommand("setloginspawn").setExecutor(new SetLoginSpawnCommand(this));
         getCommand("setmainspawn").setExecutor(new SetMainSpawnCommand(this));
-        getCommand("hiam").setExecutor(new HiamCommand(this));
+        
+        // HIAM command with tab completion
+        AuthCommand hiamCommand = new AuthCommand(this);
+        getCommand("hiam").setExecutor(hiamCommand);
+        getCommand("hiam").setTabCompleter(new uk.co.keirahopkins.hiam.paper.command.AuthCommandCompleter());
     }
     
-    public static HelixIAMPaper getInstance() {
+    public static PaperPlugin getInstance() {
         return instance;
     }
     

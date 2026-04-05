@@ -6,19 +6,19 @@ import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.co.keirahopkins.hiam.paper.HelixIAMPaper;
+import uk.co.keirahopkins.hiam.paper.PaperPlugin;
 
 public class PaperConfig {
     
     private static final Logger logger = LoggerFactory.getLogger(PaperConfig.class);
     
-    private final HelixIAMPaper plugin;
+    private final PaperPlugin plugin;
     private FileConfiguration config;
     
     private Location loginSpawn;
     private Location mainSpawn;
     
-    public PaperConfig(HelixIAMPaper plugin) {
+    public PaperConfig(PaperPlugin plugin) {
         this.plugin = plugin;
     }
     

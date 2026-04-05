@@ -1,10 +1,10 @@
-# Helix IAM
+# HIAM - Helix Identity and Access Management
 
-A Java 21 Maven authentication system for Velocity + Paper networks.
+A Maven-based authentication system for Velocity + Paper networks. Written in Java with support for Java 17 LTS, Java 21 LTS, and Java 25+.
 
 ## Overview
 
-Helix IAM provides secure authentication for offline-mode Velocity networks with support for:
+HIAM provides secure authentication for offline-mode Velocity networks with support for:
 - Password-based authentication for cracked/Eaglercraft users (`/register`, `/login`)
 - Java-only no-password premium mode via `/premium`
 - Session management with TTLs and IP locking
@@ -36,7 +36,7 @@ Helix IAM provides secure authentication for offline-mode Velocity networks with
 
 ## Requirements
 
-- Java 21
+- Java 17 LTS or higher (tested with Java 17, 21, and 25)
 - Maven 3.9+
 - PostgreSQL 12+
 - Velocity 3.3.0+
@@ -57,14 +57,14 @@ The schema will be automatically created on first startup from `001-init.sql`.
 ## Building
 
 ```bash
-export JAVA_HOME=/path/to/java21
+export JAVA_HOME=/path/to/java17  # Java 17, 21, or 25+
 mvn clean package
 ```
 
 Built JARs will be in:
-- `hiam-velocity/target/Helix IAM - Velocity-1.0.0-SNAPSHOT.jar`
-- `hiam-paper/target/Helix IAM - Paper Auth Server-1.0.0-SNAPSHOT.jar`
-- `hiam-paper-gate/target/Helix IAM - Paper Gate-1.0.0-SNAPSHOT.jar`
+- `hiam-velocity/target/hiam-velocity-2.3.4-java17.jar` (or `-java21`/`-java25`)
+- `hiam-paper/target/hiam-paper-2.3.4-java17.jar` (or `-java21`/`-java25`)
+- `hiam-paper-gate/target/hiam-paper-gate-2.3.4-java17.jar` (or `-java21`/`-java25`)
 
 ## Installation
 
@@ -107,8 +107,8 @@ routing:
 
 ### Player Commands
 
-- `/register <password> <confirm>` - Register a new account
-- `/login <password>` - Login to your account
+- `/register <password> <confirm>` (alias: `/r`) - Register a new account
+- `/login <password>` (alias: `/l`) - Login to your account
 - `/changepass <old> <new> <confirm>` - Change your password
 - `/premium` - Enable premium (no-password) mode (Java only, requires confirmation)
 - `/offline` - Switch to offline (password) mode (requires confirmation)
@@ -165,29 +165,29 @@ routing:
 
 ### Security Features
 
-- **Argon2id Password Hashing**: Industry-standard password hashing with full parameter storage
+- **Argon2id Password Hashing**: Secure password hashing with full parameter storage
 - **Rate Limiting**: Configurable max attempts and lockout duration
-- **Session Management**: TTL-based sessions with automatic expiration
+- **Session Management**: TTL-based sessions that expire automatically
 - **IP Locking**: Optional IP-based session validation
-- **Confirmation Tokens**: 30-second single-use tokens for security-critical operations
+- **Confirmation Tokens**: 30-second single-use tokens for important operations
 - **SQL Injection Protection**: All queries use prepared statements
 
 ### Client Detection
 
 Automatically detects Java Edition vs Eaglercraft clients:
-- Java users are offered premium mode after registration
+- Java users get offered premium mode after registration
 - Eaglercraft users never see premium prompts
-- Premium mode enforced only for Java Edition
+- Premium mode only works on Java Edition
 
 ### Player Freeze System
 
-Unauthenticated players are frozen and cannot:
-- Move (position locked, not head rotation)
-- Execute commands (except whitelisted auth commands)
-- Access inventory
+Unauthenticated players get frozen and can't:
+- Move (position stays locked, you can look around though)
+- Run commands except for auth ones
+- Open inventory
 - Take or deal damage
-- Interact with blocks, entities, or items
-- Send chat messages
+- Touch blocks, entities, or items
+- Chat with other players
 
 ### Authentication Flow
 
@@ -201,10 +201,10 @@ Unauthenticated players are frozen and cannot:
 ### Admin Features
 
 - View detailed account information
-- Force reset accounts
+- Completely reset an account
 - Reset or clear passwords
 - Change account modes (premium/offline)
-- All dangerous operations require confirmation with clickable buttons
+- All dangerous operations need confirmation with clickable buttons
 
 ## Configuration
 
@@ -225,11 +225,9 @@ Key settings:
 ### Paper Config (`plugins/HelixIAM-Paper/config.yml`)
 
 Key settings:
-- `auth.spawn.login` - Login spawn location
-- `auth.spawn.post` - Post-auth spawn location
-- `auth.freeze.*` - Freeze restrictions
+- `spawns.login` - Login spawn location
+- `spawns.main` - Post-auth spawn location
 - `messaging.channel` - Plugin messaging channel (must match Velocity)
-- `messages.*` - Customizable player messages
 
 ## Database Schema
 
@@ -268,7 +266,7 @@ Player authentication states:
 ## Development
 
 Built with:
-- Java 21
+- Java 17+ (compatible with Java 17, 21, and 25+)
 - Maven 3.9+
 - HikariCP for connection pooling
 - PostgreSQL JDBC driver
@@ -280,8 +278,10 @@ Built with:
 
 ## License
 
-Copyright (c) 2024 Keira Hopkins. All rights reserved.
+This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
+
+Copyright © 2026 Keira Hopkins and contributors
 
 ## Support
 
-For issues and feature requests, please contact the project maintainer.
+For issues and feature requests, please use the GitHub issue tracker.

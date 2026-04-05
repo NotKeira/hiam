@@ -7,14 +7,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import uk.co.keirahopkins.hiam.paper.HelixIAMPaper;
+import uk.co.keirahopkins.hiam.paper.PaperPlugin;
 import uk.co.keirahopkins.hiam.paper.manager.ConfirmationManager.ConfirmationType;
 
 public class OfflineCommand implements CommandExecutor {
     
-    private final HelixIAMPaper plugin;
+    private final PaperPlugin plugin;
     
-    public OfflineCommand(HelixIAMPaper plugin) {
+    public OfflineCommand(PaperPlugin plugin) {
         this.plugin = plugin;
     }
     
